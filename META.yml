@@ -1,0 +1,102 @@
+---
+name: Contentment
+version: 0.009_001
+author:
+  - Andrew Sterling Hanenkamp E<lt>hanenkamp@users.sourceforge.netE<gt>
+abstract: This is the main module of Contentment
+license: perl
+requires:
+  Class::Accessor: 0.19
+  Data::UUID: 0.11
+  DateTime::Format::DBI: 0.031
+  File::System: 1.03
+  HTML::Mason: 1.20
+  Log::Log4perl: 0.47
+  MIME::Types: 1.13
+  SPOPS: 0.87
+  SQL::Translator: 0.06
+  YAML: 0.35
+  perl: 5.6.1
+recommends:
+  DateTime::Format::MySQL: 0.0301
+  Pod::Simple: 3.02
+  Text::Balanced: 1.95
+provides:
+  Contentment:
+    file: lib/Contentment.pm
+    version: 0.009_001
+  Contentment::Context:
+    file: lib/Contentment/Context.pm
+    version: 0.01
+  Contentment::FileType::Mason:
+    file: lib/Contentment/FileType/Mason.pm
+    version: 0.01
+  Contentment::FileType::Other:
+    file: lib/Contentment/FileType/Other.pm
+    version: 0.01
+  Contentment::FileType::POD:
+    file: lib/Contentment/FileType/POD.pm
+    version: 0.01
+  Contentment::Form:
+    file: lib/Contentment/Form.pm
+    version: 0.01
+  Contentment::Form::Widget::Input:
+    file: lib/Contentment/Form/Widget/Input.pm
+    version: 0.01
+  Contentment::Form::Widget::Null:
+    file: lib/Contentment/Form/Widget/Null.pm
+    version: 0.01
+  Contentment::Form::Widget::Select:
+    file: lib/Contentment/Form/Widget/Select.pm
+    version: 0.01
+  Contentment::Form::Widget::TextArea:
+    file: lib/Contentment/Form/Widget/TextArea.pm
+    version: 0.01
+  Contentment::Panel:
+    file: lib/Contentment/Panel.pm
+    version: 0.01
+  Contentment::SPOPS:
+    file: lib/Contentment/SPOPS.pm
+    version: 0.01
+  Contentment::Security:
+    file: lib/Contentment/Security.pm
+    version: 0.01
+  Contentment::Security::DBI:
+    file: lib/Contentment/Security/DBI.pm
+  Contentment::Session:
+    file: lib/Contentment/Session.pm
+    version: 0.01
+  Contentment::Setting:
+    file: lib/Contentment/Setting.pm
+    version: 0.01
+  Contentment::Transform::Pod2Html:
+    file: lib/Contentment/Transform/Pod2Html.pm
+    version: 0.01
+  Contentment::Util::Transformation:
+    file: lib/Contentment/Util/Transformation.pm
+    version: 0.01
+  Contentment::VFS:
+    file: lib/Contentment/VFS.pm
+    version: 0.01
+  Contentment::VFS::Directory:
+    file: lib/Contentment/VFS.pm
+    version: 0.01
+  Contentment::VFS::FakeFile:
+    file: lib/Contentment/VFS.pm
+    version: 0.01
+  Contentment::VFS::File:
+    file: lib/Contentment/VFS.pm
+    version: 0.01
+  Contentment::VFS::Thing:
+    file: lib/Contentment/VFS.pm
+    version: 0.01
+  Contentment::VFSResolver:
+    file: lib/Contentment/VFSResolver.pm
+    version: 0.01
+  SPOPSx::Tool::DateTime:
+    file: lib/SPOPSx/Tool/DateTime.pm
+    version: 0.01
+  SPOPSx::Tool::HashField:
+    file: lib/SPOPSx/Tool/HashField.pm
+    version: 0.01
+generated_by: Module::Build version 0.261
