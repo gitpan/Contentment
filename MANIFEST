@@ -3,7 +3,6 @@ buildlib/Contentment/Build.pm
 buildlib/docindex.PL
 buildlib/expand-notes.PL
 docroots/htdocs/cgi-bin/.htaccess
-docroots/htdocs/cgi-bin/contentment.cgi.in
 docroots/htdocs/cgi-bin/handler-path.cgi.sample
 docroots/htdocs/cgi-bin/handler.cgi.in
 docroots/htdocs/htaccess.sample
@@ -59,7 +58,8 @@ etc/Contentment.conf.sample.in
 etc/Contentment.defaults.conf
 etc/log4perl.conf.file.in
 etc/log4perl.conf.stderr
-lib/Contentment.pm.in
+lib/Contentment.pm
+lib/Contentment/Config.pm.in
 lib/Contentment/Context.pm
 lib/Contentment/FileType/HTML.pm
 lib/Contentment/FileType/Mason.pm
@@ -88,7 +88,7 @@ lib/Contentment/VFSResolver.pm
 lib/SPOPSx/Tool/DateTime.pm
 lib/SPOPSx/Tool/HashField.pm
 LICENSE
-Makefile.PL
 MANIFEST			This list of files
-META.yml
 README
+META.yml
+Makefile.PL

@@ -1,9 +1,9 @@
 ---
 name: Contentment
-version: 0.009_002
+version: 0.009_004
 author:
   - Andrew Sterling Hanenkamp E<lt>hanenkamp@users.sourceforge.netE<gt>
-abstract: This is the main module of Contentment
+abstract: Contentment is a Mason/Perl-bsed CMS
 license: perl
 requires:
   Class::Accessor: 0.19
@@ -23,6 +23,9 @@ recommends:
   Pod::Simple: 3.02
   Text::Balanced: 1.95
 provides:
+  Contentment:
+    file: lib/Contentment.pm
+    version: 0.009_004
   Contentment::Context:
     file: lib/Contentment/Context.pm
     version: 0.01

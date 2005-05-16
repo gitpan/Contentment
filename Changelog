@@ -1,4 +1,34 @@
 ------------------------------------------------------------------------
+r469 | sterling | 2005-05-16 08:11:39 -0500 (Mon, 16 May 2005) | 17 lines
+
+Contentment Version 0.9b4
+
+	* Fix: The repository contains 0.10b1 as a version number. This was an
+	  accident.
+	* Fix: Fixed the title of the documentation for Contentment.pm
+	* Fix: Fixed a bug causing problems with the way Contentment->configuration
+	  was being called from Contentment::VFS.
+	* Fix: Fixed the way the VFS is configured in the configuration defaults.
+	* Fix: Fixed the way that $ENV{PATH_INFO} is used so that Contentment is
+	  able to actually return pages.
+	* Feature: Top level errors dump a simple stack trace to the contentment
+	  logs.
+	* Feature: Added Contentment->call_hooks(), but haven't started using it.
+	* Change: Top level errors are now "error" rather than "fatal".
+	* Change: VFS properties now prefer the file-based properties over the
+	  filetype properties.
+
+------------------------------------------------------------------------
+r466 | sterling | 2005-05-09 12:35:39 -0500 (Mon, 09 May 2005) | 2 lines
+
+Contentment.pm is no longer generated to prevent me from being an idiot and losing 4 more hours of work.
+
+------------------------------------------------------------------------
+r460 | sterling | 2005-05-08 21:06:16 -0500 (Sun, 08 May 2005) | 2 lines
+
+Reorganized repository.
+
+------------------------------------------------------------------------
 r456 | sterling | 2005-05-07 20:36:18 -0500 (Sat, 07 May 2005) | 2 lines
 
 Added /content/util/crumbtrail.
