@@ -1,5 +1,112 @@
 ------------------------------------------------------------------------
-r469 | sterling | 2005-05-16 08:11:39 -0500 (Mon, 16 May 2005) | 17 lines
+r483 | sterling | 2005-06-11 14:49:38 -0700 (Sat, 11 Jun 2005) | 16 lines
+
+Contentment 0.9b8:
+
+	* Switched Contentment::VFSResolver to return objects that create
+	* HTML::Mason::Component::FileBased to fix a bug with content/util/index
+	* Added Contentment::Manual::Bugs to the table of contents of
+	* Contentment::Manual
+	* Changed the short title of Contentment::Manual to Manual.
+	* Simplified the code of get_property() in Contentment::VFS which is faster
+	* and fixes a bug with attributes being missed sometimes.
+	* Added a RESOLVED section to Contentment::Manual::Bugs.
+	* Added index.* files to the default non_indexed_files setting and removed
+	* *.xls from the same list.
+	* Added the prun_unindexed argument to content/util/index to allow the user
+	* to choose to index directories not containing index.* (previously these
+	* were never indexed).
+
+------------------------------------------------------------------------
+r482 | sterling | 2005-06-11 12:59:52 -0700 (Sat, 11 Jun 2005) | 20 lines
+
+Contentment 0.9b7:
+
+	* Again fixed the title of Contentment in the documentation.
+	* Made a minor documentation improvment to Contentment.
+	* Fixed Contentment->capture_stream() so that it handled errors as
+	  perscribed in the documentation.
+	* Fixed content/input/dhandler so that directory redirects do not ad a
+	  superfluous slash.
+	* Added better error handling to content/input/dhandler when a requested
+	  path doesn't exist.
+	* Added some debug statements to content/input/autohandler that should
+	  probably be removed eventually, but are handy for now.
+	* Fixed a typo in an error message in
+	  content/transform/apply_transformation.mason
+	* Changed the behavior of content/transform/apply_transformation.mason so
+	  that it returns the original output if no transformations can be found.
+	  This is a lot handier, if not a bit dangerous. The behavior needs
+	  tweaking, of course.
+	* Switched content/util/index to grab theme masters correctly
+
+------------------------------------------------------------------------
+r480 | sterling | 2005-05-31 08:04:01 -0700 (Tue, 31 May 2005) | 2 lines
+
+Removed unnecessary debug statements.
+
+------------------------------------------------------------------------
+r479 | sterling | 2005-05-21 17:12:33 -0700 (Sat, 21 May 2005) | 26 lines
+
+Contentment 0.9b6
+
+	* Added the Contentment->capture_streams() method to add in all the fancy
+	  redirection the hooks system et al require.
+	* Vastly improved the Contentment->call_hooks() method so that each hooks
+	  output becomes the next hooks input.
+	* Added a Contentment::FileType::PL handler for .pl files.
+	* Fixed Contentment::FileType plugins to use get_property rather than
+	  property.
+	* Altered Contentment::FileType::Mason to capture STDIN as the nested
+	  content to feed to the component.
+	* Renamed the setting "cookie_session_duration" to
+	  "session_cookie_durection"
+	* Added a documented contract for filetype plugins in Contentment::FileType
+	* Removed the IO::String dependency from Build.PL
+	* Added Contentment::FileType::PL to the default configuration.
+	* Added session_cookie_duration of 90 days to the default configuration.
+	* Altered the input autohandler to use the new capture_streams() and
+	  call_hooks() methods.
+	* Added hooks for request/finish, request/postprocess, and
+	  request/preprocess.
+	* Renamed /content/filter/apply_filter to
+	  /content/transform/apply_filter.mason
+	* Renamed /content/transform/apply_transformation to
+	  /content/transform/apply_transformation.mason
+
+------------------------------------------------------------------------
+r473 | sterling | 2005-05-17 05:54:02 -0700 (Tue, 17 May 2005) | 2 lines
+
+	* Added missing version number nudge to 0.9b5
+
+------------------------------------------------------------------------
+r472 | sterling | 2005-05-17 05:52:33 -0700 (Tue, 17 May 2005) | 17 lines
+
+Contentment 0.9b5
+
+	* Bug: Continuing to tweak the main handler to make it work better and be
+	  more robust.
+	* Bug: Altered the dhandler to deal with strange input from HTML::Mason
+	  (i.e., with a custom resolver it doesn't appear to properly strip the
+	  parent directories out of dhandler_arg)
+	* Bug: Altered the dhandler to explicitly inherit from the input autohandler
+	  because the autohandler doesn't get executed without it (appears to be
+	  another HTML::Mason resolver bug)
+	* Bug: Fixed a typo in the 90-html-links filter. It appears to have been
+	  accidentally overwritten with the 90-css-links filter.
+	* Change: Pulled session startup/shutdown out of the input autohandler.
+	* Change: Contentment::Session does it's own session startup/shutdown.
+	* Change: The session and session_id variables of Contentment::Context are
+	  no longer read-only.
+
+------------------------------------------------------------------------
+r471 | sterling | 2005-05-16 06:28:06 -0700 (Mon, 16 May 2005) | 3 lines
+
+	* Fix: Changed the location from which "./Build distdir" finds the Changelog
+	  in SVN to reflect the recent reorganization.
+
+------------------------------------------------------------------------
+r469 | sterling | 2005-05-16 06:11:39 -0700 (Mon, 16 May 2005) | 17 lines
 
 Contentment Version 0.9b4
 
@@ -19,22 +126,22 @@ Contentment Version 0.9b4
 	  filetype properties.
 
 ------------------------------------------------------------------------
-r466 | sterling | 2005-05-09 12:35:39 -0500 (Mon, 09 May 2005) | 2 lines
+r466 | sterling | 2005-05-09 10:35:39 -0700 (Mon, 09 May 2005) | 2 lines
 
 Contentment.pm is no longer generated to prevent me from being an idiot and losing 4 more hours of work.
 
 ------------------------------------------------------------------------
-r460 | sterling | 2005-05-08 21:06:16 -0500 (Sun, 08 May 2005) | 2 lines
+r460 | sterling | 2005-05-08 19:06:16 -0700 (Sun, 08 May 2005) | 2 lines
 
 Reorganized repository.
 
 ------------------------------------------------------------------------
-r456 | sterling | 2005-05-07 20:36:18 -0500 (Sat, 07 May 2005) | 2 lines
+r456 | sterling | 2005-05-07 18:36:18 -0700 (Sat, 07 May 2005) | 2 lines
 
 Added /content/util/crumbtrail.
 
 ------------------------------------------------------------------------
-r455 | sterling | 2005-05-07 19:52:24 -0500 (Sat, 07 May 2005) | 19 lines
+r455 | sterling | 2005-05-07 17:52:24 -0700 (Sat, 07 May 2005) | 19 lines
 
 The change log is automatically created by distdir from the Subversion log.
 Fixed the name of SPOPSx::Tool::HashField in the documentation.
@@ -56,7 +163,7 @@ Removed the old transformation scripts.
 Removed the the generate_and_transform script.
 
 ------------------------------------------------------------------------
-r452 | sterling | 2005-04-27 23:54:09 -0500 (Wed, 27 Apr 2005) | 5 lines
+r452 | sterling | 2005-04-27 21:54:09 -0700 (Wed, 27 Apr 2005) | 5 lines
 
 Added a new HTML file type that understands <title> and <meta> tags.
 Added site details to the Contentment.defaults.conf and reorganized the layout of the file.
@@ -64,21 +171,21 @@ Started improving the prepackaged sample site.
 Fixed a bug in the CGI handler that resulted in dysfunction when the "base" configuration variable was set.
 
 ------------------------------------------------------------------------
-r451 | sterling | 2005-04-22 12:30:15 -0500 (Fri, 22 Apr 2005) | 2 lines
+r451 | sterling | 2005-04-22 10:30:15 -0700 (Fri, 22 Apr 2005) | 2 lines
 
 Removed Makefile.PL compatibility.
 
 ------------------------------------------------------------------------
-r450 | sterling | 2005-04-22 12:24:01 -0500 (Fri, 22 Apr 2005) | 1 line
+r450 | sterling | 2005-04-22 10:24:01 -0700 (Fri, 22 Apr 2005) | 1 line
 
 Added the missing README.
 ------------------------------------------------------------------------
-r449 | sterling | 2005-04-22 11:55:48 -0500 (Fri, 22 Apr 2005) | 2 lines
+r449 | sterling | 2005-04-22 09:55:48 -0700 (Fri, 22 Apr 2005) | 2 lines
 
 Removed old install_* Build actions.
 
 ------------------------------------------------------------------------
-r448 | sterling | 2005-04-22 10:22:29 -0500 (Fri, 22 Apr 2005) | 14 lines
+r448 | sterling | 2005-04-22 08:22:29 -0700 (Fri, 22 Apr 2005) | 14 lines
 
 Fixed the misuse of $infile in expand-notes.PL
 Added mode copying to expand-notes.PL
@@ -95,7 +202,7 @@ Moved handler.cgi to handler.cgi.in to allow the Contentment lib to be automatic
 Updated htaccess.sample substantially to make the rewrites more robust.
 
 ------------------------------------------------------------------------
-r447 | sterling | 2005-04-21 08:45:24 -0500 (Thu, 21 Apr 2005) | 7 lines
+r447 | sterling | 2005-04-21 06:45:24 -0700 (Thu, 21 Apr 2005) | 7 lines
 
 expand-notes.PL is smarter by checking for sh-bangs.
 Created docroots/htdocs and moved cgi-bin inside of here. The docroots/master shouldn't be considered the web server root anymore.
@@ -105,7 +212,7 @@ Added default/sample .htaccess files to htdocs and cgi-bin.
 Added the missing log4perl.conf.file.
 
 ------------------------------------------------------------------------
-r446 | sterling | 2005-04-20 22:39:19 -0500 (Wed, 20 Apr 2005) | 9 lines
+r446 | sterling | 2005-04-20 20:39:19 -0700 (Wed, 20 Apr 2005) | 9 lines
 
 Renamed Contentment.pm.PL to the more appropriate expand-notes.PL.
 Added multiple-file handling to expand-notes.PL.
@@ -117,12 +224,12 @@ Split log4perl.conf into a STDERR and a log file sample.
 Updated the input dhandler to perform better directory handling with a simple redirect.
 
 ------------------------------------------------------------------------
-r445 | sterling | 2005-04-20 10:05:02 -0500 (Wed, 20 Apr 2005) | 2 lines
+r445 | sterling | 2005-04-20 08:05:02 -0700 (Wed, 20 Apr 2005) | 2 lines
 
 Added the docroots that svk butchered away.
 
 ------------------------------------------------------------------------
-r444 | sterling | 2005-04-20 09:55:39 -0500 (Wed, 20 Apr 2005) | 27 lines
+r444 | sterling | 2005-04-20 07:55:39 -0700 (Wed, 20 Apr 2005) | 27 lines
 
 Rearranged the distribution and made installation script more sane.
  - Moved docs/** -> lib
@@ -152,41 +259,41 @@ Updated the installation documentation in Contentment::Manual::Install
 Updated the version number from 0.7.2 to 0.9.0 because of the major directory rearrangement.
 
 ------------------------------------------------------------------------
-r443 | sterling | 2005-04-18 17:36:14 -0500 (Mon, 18 Apr 2005) | 2 lines
+r443 | sterling | 2005-04-18 15:36:14 -0700 (Mon, 18 Apr 2005) | 2 lines
 
 Fixed a bug in the calculation of the selected value for select widgets.
 
 ------------------------------------------------------------------------
-r442 | sterling | 2005-04-18 16:21:47 -0500 (Mon, 18 Apr 2005) | 2 lines
+r442 | sterling | 2005-04-18 14:21:47 -0700 (Mon, 18 Apr 2005) | 2 lines
 
 Added the textarea widget.
 
 ------------------------------------------------------------------------
-r435 | sterling | 2005-04-15 12:27:35 -0500 (Fri, 15 Apr 2005) | 2 lines
+r435 | sterling | 2005-04-15 10:27:35 -0700 (Fri, 15 Apr 2005) | 2 lines
 
 Added arguments to content generation.
 
 ------------------------------------------------------------------------
-r430 | sterling | 2005-03-31 17:24:29 -0600 (Thu, 31 Mar 2005) | 2 lines
+r430 | sterling | 2005-03-31 15:24:29 -0800 (Thu, 31 Mar 2005) | 2 lines
 
 Fixed a bug where all arguments to a component were oddly obscured. Must have been asleep when I wrote that code.
 
 ------------------------------------------------------------------------
-r424 | sterling | 2005-03-19 22:49:46 -0600 (Sat, 19 Mar 2005) | 2 lines
+r424 | sterling | 2005-03-19 20:49:46 -0800 (Sat, 19 Mar 2005) | 2 lines
 
 Fixed the way the API document indexes are generated.
 
 ------------------------------------------------------------------------
-r423 | sterling | 2005-03-19 15:22:23 -0600 (Sat, 19 Mar 2005) | 2 lines
+r423 | sterling | 2005-03-19 13:22:23 -0800 (Sat, 19 Mar 2005) | 2 lines
 
 Fixed the title of the Manual.
 
 ------------------------------------------------------------------------
-r422 | sterling | 2005-03-19 14:46:10 -0600 (Sat, 19 Mar 2005) | 1 line
+r422 | sterling | 2005-03-19 12:46:10 -0800 (Sat, 19 Mar 2005) | 1 line
 
 Added documentation to Contentment::Session, Contentment::Setting, and Contentment::VFS.
 ------------------------------------------------------------------------
-r421 | sterling | 2005-03-19 12:03:51 -0600 (Sat, 19 Mar 2005) | 6 lines
+r421 | sterling | 2005-03-19 10:03:51 -0800 (Sat, 19 Mar 2005) | 6 lines
 
 Added the pod_bases and pod_fallback options to the default configuration.
 Added a short_title meta item to Contentment::Manual.
@@ -195,7 +302,7 @@ Cleaned up the paths used by VFS things.
 Fixed the way that quotelikes are read from Pod properties.
 
 ------------------------------------------------------------------------
-r420 | sterling | 2005-03-19 10:06:14 -0600 (Sat, 19 Mar 2005) | 7 lines
+r420 | sterling | 2005-03-19 08:06:14 -0800 (Sat, 19 Mar 2005) | 7 lines
 
 Added POD files in docs to Build.PL.
 Contentment::Transform::Pod2Html skips X<> contents and handles <, >, and & correctly now.
@@ -205,56 +312,56 @@ Fixed a missing '=back' in the POD of Contentment::Context.
 Switched /content/transform/modules/pod2html to use Contentment::Transform::pod2Html.
 
 ------------------------------------------------------------------------
-r419 | sterling | 2005-03-18 21:58:34 -0600 (Fri, 18 Mar 2005) | 1 line
+r419 | sterling | 2005-03-18 19:58:34 -0800 (Fri, 18 Mar 2005) | 1 line
 
 Added a basic extension to Pod::Simple especially for Contentment.
 ------------------------------------------------------------------------
-r418 | sterling | 2005-03-17 08:52:16 -0600 (Thu, 17 Mar 2005) | 1 line
+r418 | sterling | 2005-03-17 06:52:16 -0800 (Thu, 17 Mar 2005) | 1 line
 
 Added documentation to Contentment::Form, Contentment::Panel, Contentment::SPOPS, and Contentment::Security::DBI.
 ------------------------------------------------------------------------
-r417 | sterling | 2005-03-17 07:28:36 -0600 (Thu, 17 Mar 2005) | 1 line
+r417 | sterling | 2005-03-17 05:28:36 -0800 (Thu, 17 Mar 2005) | 1 line
 
 Added documentation for Contentment::FileType::Other and Contentment::FileType::POD.
 ------------------------------------------------------------------------
-r416 | sterling | 2005-03-16 23:00:59 -0600 (Wed, 16 Mar 2005) | 1 line
+r416 | sterling | 2005-03-16 21:00:59 -0800 (Wed, 16 Mar 2005) | 1 line
 
 Added documentation to Contentment::FileType::Mason, Contentment, SPOPSx::Tool::DateTime, and SPOPSx::Tool:Hashfield.
 ------------------------------------------------------------------------
-r415 | sterling | 2005-03-16 17:45:39 -0600 (Wed, 16 Mar 2005) | 4 lines
+r415 | sterling | 2005-03-16 15:45:39 -0800 (Wed, 16 Mar 2005) | 4 lines
 
 Corrected the way results are returned by /content/util/generate.
 Corrected the way the subrequest is generated in Contentment::FileType::Mason---a full subrequest is no longer performed, just a plain "comp".
 I made a stupid error in creating the Contentment::VFS::Thing::parent method, it does something useful now.
 
 ------------------------------------------------------------------------
-r414 | sterling | 2005-03-16 11:43:57 -0600 (Wed, 16 Mar 2005) | 2 lines
+r414 | sterling | 2005-03-16 09:43:57 -0800 (Wed, 16 Mar 2005) | 2 lines
 
 Merged back in 409:413 of branches/0.7.2-update-forms-processor into trunk.
 
 ------------------------------------------------------------------------
-r412 | sterling | 2005-03-09 11:55:05 -0600 (Wed, 09 Mar 2005) | 2 lines
+r412 | sterling | 2005-03-09 09:55:05 -0800 (Wed, 09 Mar 2005) | 2 lines
 
 Merged 393:411 of branches/0.7.1-reducing-perl-requirements into trunk.
 
 ------------------------------------------------------------------------
-r409 | sterling | 2005-03-04 13:54:32 -0600 (Fri, 04 Mar 2005) | 3 lines
+r409 | sterling | 2005-03-04 11:54:32 -0800 (Fri, 04 Mar 2005) | 3 lines
 
 Converted documentation in apply_transformation to perldoc.
 Created indexing script for use by Build.PL to create Manual.pod.
 Fixed whitespace in Manual.pod.in.
 ------------------------------------------------------------------------
-r408 | sterling | 2005-03-04 09:07:06 -0600 (Fri, 04 Mar 2005) | 1 line
+r408 | sterling | 2005-03-04 07:07:06 -0800 (Fri, 04 Mar 2005) | 1 line
 
 Added non-technical features documentation.
 ------------------------------------------------------------------------
-r407 | sterling | 2005-03-04 08:38:40 -0600 (Fri, 04 Mar 2005) | 3 lines
+r407 | sterling | 2005-03-04 06:38:40 -0800 (Fri, 04 Mar 2005) | 3 lines
 
 Moved original_kind handling into the generate component to accomodate caching.
 Added support for caching the output generated by the generate component.
 
 ------------------------------------------------------------------------
-r406 | sterling | 2005-03-03 08:45:05 -0600 (Thu, 03 Mar 2005) | 8 lines
+r406 | sterling | 2005-03-03 06:45:05 -0800 (Thu, 03 Mar 2005) | 8 lines
 
 Fixed the __DIE__ handler to still confess even if the logger is broken.
 Added the lines method to Contentment::VFS::Directory to return a clear error.
@@ -265,16 +372,16 @@ Added installation documentation in Install.pod.
 Added the requirement for Log::Log4perl 0.47.
 Removed the requirement for SPOPSx::Ginsu.
 ------------------------------------------------------------------------
-r405 | sterling | 2005-03-02 21:28:43 -0600 (Wed, 02 Mar 2005) | 1 line
+r405 | sterling | 2005-03-02 19:28:43 -0800 (Wed, 02 Mar 2005) | 1 line
 
 Improved the index utility to default to the current component's dir_path.
 ------------------------------------------------------------------------
-r404 | sterling | 2005-03-02 09:43:02 -0600 (Wed, 02 Mar 2005) | 2 lines
+r404 | sterling | 2005-03-02 07:43:02 -0800 (Wed, 02 Mar 2005) | 2 lines
 
 Added POD file type plugin that should have been added during the last commit.
 
 ------------------------------------------------------------------------
-r403 | sterling | 2005-03-02 09:42:19 -0600 (Wed, 02 Mar 2005) | 7 lines
+r403 | sterling | 2005-03-02 07:42:19 -0800 (Wed, 02 Mar 2005) | 7 lines
 
 The pod2html transformer is basically tested.
 Fixed some small asthetic bugs in apply_transformation.
@@ -284,50 +391,50 @@ Updated Build.PL to reflect the need for Pod::Simple and Text::Balanced if you w
 Updated default settings to include new POD file type plugin.
 
 ------------------------------------------------------------------------
-r402 | sterling | 2005-03-01 22:32:22 -0600 (Tue, 01 Mar 2005) | 1 line
+r402 | sterling | 2005-03-01 20:32:22 -0800 (Tue, 01 Mar 2005) | 1 line
 
 Fixed the .pod file extension.
 ------------------------------------------------------------------------
-r401 | sterling | 2005-03-01 22:27:55 -0600 (Tue, 01 Mar 2005) | 1 line
+r401 | sterling | 2005-03-01 20:27:55 -0800 (Tue, 01 Mar 2005) | 1 line
 
 Improved handling of POD kind.
 ------------------------------------------------------------------------
-r400 | sterling | 2005-03-01 21:55:02 -0600 (Tue, 01 Mar 2005) | 1 line
+r400 | sterling | 2005-03-01 19:55:02 -0800 (Tue, 01 Mar 2005) | 1 line
 
 Beginning to write the initial manual and other basic documentation.
 ------------------------------------------------------------------------
-r399 | sterling | 2005-02-28 11:19:33 -0600 (Mon, 28 Feb 2005) | 3 lines
+r399 | sterling | 2005-02-28 09:19:33 -0800 (Mon, 28 Feb 2005) | 3 lines
 
 Improved the generate component to perform transformation when requested.
 The Mason file type plugin is better able to determine the file type of Mason files.
 
 ------------------------------------------------------------------------
-r396 | sterling | 2005-02-26 16:41:59 -0600 (Sat, 26 Feb 2005) | 2 lines
+r396 | sterling | 2005-02-26 14:41:59 -0800 (Sat, 26 Feb 2005) | 2 lines
 
 Fixed a bug in the way session security is checked.
 
 ------------------------------------------------------------------------
-r395 | sterling | 2005-02-26 16:40:16 -0600 (Sat, 26 Feb 2005) | 2 lines
+r395 | sterling | 2005-02-26 14:40:16 -0800 (Sat, 26 Feb 2005) | 2 lines
 
 Fixed the default main template to use the VFS.
 
 ------------------------------------------------------------------------
-r392 | sterling | 2005-02-26 14:29:15 -0600 (Sat, 26 Feb 2005) | 2 lines
+r392 | sterling | 2005-02-26 12:29:15 -0800 (Sat, 26 Feb 2005) | 2 lines
 
 Fixed the MANIFEST.
 
 ------------------------------------------------------------------------
-r390 | sterling | 2005-02-26 13:48:28 -0600 (Sat, 26 Feb 2005) | 2 lines
+r390 | sterling | 2005-02-26 11:48:28 -0800 (Sat, 26 Feb 2005) | 2 lines
 
 Fixing the version number of Contentment.
 
 ------------------------------------------------------------------------
-r387 | sterling | 2005-02-26 13:44:47 -0600 (Sat, 26 Feb 2005) | 2 lines
+r387 | sterling | 2005-02-26 11:44:47 -0800 (Sat, 26 Feb 2005) | 2 lines
 
 Reorganizing the Subversion repository according to "standard" doctrine.
 
 ------------------------------------------------------------------------
-r386 | sterling | 2005-02-26 13:34:37 -0600 (Sat, 26 Feb 2005) | 2 lines
+r386 | sterling | 2005-02-26 11:34:37 -0800 (Sat, 26 Feb 2005) | 2 lines
 
 Fixing up the repository to follow the standard conventions.
 

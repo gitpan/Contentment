@@ -1,72 +1,68 @@
-% eval {
-<&| /content/filter/apply_filter &>
-<&| /content/transform/apply_transformation &>
-% 	$m->call_next;
-</&>
-</&>
-% };
-%
-% $ERROR = $@;
+<%perl>
+eval {
+	# Generate the original output
+	my $original_output = File::Temp::tempfile;
+	Contentment->capture_streams(\*STDIN, $original_output, sub {
+		$m->call_next
+	});
+
+	# Transform that output according to the postprocessors
+	seek $original_output, 0, 0;
+	my $final_output = File::Temp::tempfile;
+	Contentment->capture_streams($original_output, $final_output, sub {
+		Contentment->call_hooks('request/postprocess')
+	});
+
+	seek $final_output, 0, 0;
+	while (<$final_output>) {
+		$m->print($_);
+	}
+};
+
+$ERROR = $@;
+</%perl>
 <%init>
+use Contentment;
 use Contentment::Context;
 use Contentment::Session;
+use File::Temp;
 
-my $q = $m->cgi_object;
-my $id = $q->cookie('SESSIONID');
+Contentment->call_hooks('request/initialize');
 
 my $ERROR;
 
-my %session;
-my $session;
-if ($id) {
-	$session = Contentment::Session->fetch($id, { skip_security => 1 });
-	if ($session) {
-		$log->debug("Reusing existing SESSIONID $id");
-		%session = %{ $session->session_data };
-	}
-}
-
-unless ($session) {
-	$session = Contentment::Session->new;
-	$session->{session_data} = {};
-	$session->save;
-
-	$id = $session->id;
-	$log->debug("Creating a new SESSIONID $id");
-}
-
-my $cookie = $q->cookie(
-	-name    => 'SESSIONID',
-	-value   => $id,
-	-expires => 'never');
-$r->header_out('Cookie', $cookie);
-
 $Contentment::context = $context = Contentment::Context->new({
 	url            => $url,
-	session_id     => $id, 
-	session        => \%session, 
 	m              => $m, 
 	r              => $r,
 	last_processed => \@__processed_uuid__,
 });
+
+my $q = $m->cgi_object;
 $url = $q->url;
 $full_base = $q->url(-base => 1) . $base;
+
+Contentment->call_hooks('request/preprocess');
 </%init>
 <%perl>
-$session->{session_data} = \%session;
-$session->save;
+Contentment->call_hooks('request/finish');
 
 if ($ERROR) {
-	if ($m->aborted) {
-		die $ERROR;
+	$log->debug("An exception was raised: $ERROR");
+	if ($m->aborted($ERROR)) {
+		$log->info("Rethrowing an abort.");
+		die $ERROR; # Aborts should be rethrown so Mason gets them
 	} else {
 		$log->error("Treating error as 404: $ERROR");
 		$m->clear_buffer;
 </%perl>
 File not found.
 <%perl>
+		$log->error("Returning '404 File not found'.");
 		$m->abort(404);
 	}
+} else {
+	$log->debug("No exception was raised.");
 }
 </%perl>
 <%filter>

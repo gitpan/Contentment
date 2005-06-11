@@ -1,9 +1,9 @@
 ---
 name: Contentment
-version: 0.009_004
+version: 0.009_008
 author:
   - Andrew Sterling Hanenkamp E<lt>hanenkamp@users.sourceforge.netE<gt>
-abstract: Contentment is a Mason/Perl-bsed CMS
+abstract: A Mason/Perl-based content management system
 license: perl
 requires:
   Class::Accessor: 0.19
@@ -11,7 +11,6 @@ requires:
   DateTime::Format::DBI: 0.031
   File::System: 1.03
   HTML::Mason: 1.20
-  IO::String: 1.06
   Log::Log4perl: 0.47
   MIME::Types: 1.13
   SPOPS: 0.87
@@ -25,22 +24,25 @@ recommends:
 provides:
   Contentment:
     file: lib/Contentment.pm
-    version: 0.009_004
+    version: 0.009_008
   Contentment::Context:
     file: lib/Contentment/Context.pm
-    version: 0.01
+    version: 0.02
   Contentment::FileType::HTML:
     file: lib/Contentment/FileType/HTML.pm
     version: 0.02
   Contentment::FileType::Mason:
     file: lib/Contentment/FileType/Mason.pm
-    version: 0.02
+    version: 0.03
   Contentment::FileType::Other:
     file: lib/Contentment/FileType/Other.pm
-    version: 0.02
+    version: 0.03
+  Contentment::FileType::PL:
+    file: lib/Contentment/FileType/PL.pm
+    version: 0.01
   Contentment::FileType::POD:
     file: lib/Contentment/FileType/POD.pm
-    version: 0.02
+    version: 0.03
   Contentment::Form:
     file: lib/Contentment/Form.pm
     version: 0.01
@@ -69,7 +71,7 @@ provides:
     file: lib/Contentment/Security/DBI.pm
   Contentment::Session:
     file: lib/Contentment/Session.pm
-    version: 0.01
+    version: 0.03
   Contentment::Setting:
     file: lib/Contentment/Setting.pm
     version: 0.01
@@ -81,10 +83,10 @@ provides:
     version: 0.01
   Contentment::VFS:
     file: lib/Contentment/VFS.pm
-    version: 0.02
+    version: 0.03
   Contentment::VFSResolver:
     file: lib/Contentment/VFSResolver.pm
-    version: 0.02
+    version: 0.03
   SPOPSx::Tool::DateTime:
     file: lib/SPOPSx/Tool/DateTime.pm
     version: 0.01

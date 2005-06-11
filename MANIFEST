@@ -1,4 +1,7 @@
 Build.PL
+LICENSE
+MANIFEST
+README
 buildlib/Contentment/Build.pm
 buildlib/docindex.PL
 buildlib/expand-notes.PL
@@ -6,10 +9,14 @@ docroots/htdocs/cgi-bin/.htaccess
 docroots/htdocs/cgi-bin/handler-path.cgi.sample
 docroots/htdocs/cgi-bin/handler.cgi.in
 docroots/htdocs/htaccess.sample
-docroots/master/content/filter/apply_filter
+docroots/master/content/filter/apply_filter.mason
 docroots/master/content/filter/modules/80-theme
 docroots/master/content/filter/modules/90-css-links
 docroots/master/content/filter/modules/90-html-links
+docroots/master/content/hooks/request/finish/90_close_session.pl
+docroots/master/content/hooks/request/postprocess/70_transform.pl
+docroots/master/content/hooks/request/postprocess/90_filter.pl
+docroots/master/content/hooks/request/preprocess/10_open_session.pl
 docroots/master/content/input/autohandler
 docroots/master/content/input/dhandler
 docroots/master/content/kind/final/kind
@@ -25,7 +32,8 @@ docroots/master/content/themes/default/style/main.css
 docroots/master/content/themes/default/text/html/main
 docroots/master/content/themes/default/text/html/toc
 docroots/master/content/themes/default/text/html/toc-hier
-docroots/master/content/transform/apply_transformation
+docroots/master/content/transform/apply_transformation.mason
+docroots/master/content/transform/modules/pod2html
 docroots/master/content/util/cache
 docroots/master/content/util/crumbtrail
 docroots/master/content/util/error
@@ -61,9 +69,11 @@ etc/log4perl.conf.stderr
 lib/Contentment.pm
 lib/Contentment/Config.pm.in
 lib/Contentment/Context.pm
+lib/Contentment/FileType.pod
 lib/Contentment/FileType/HTML.pm
 lib/Contentment/FileType/Mason.pm
 lib/Contentment/FileType/Other.pm
+lib/Contentment/FileType/PL.pm
 lib/Contentment/FileType/POD.pm
 lib/Contentment/Form.pm
 lib/Contentment/Form/Widget/Input.pm
@@ -76,19 +86,16 @@ lib/Contentment/Manual/Features.pod
 lib/Contentment/Manual/Install.pod
 lib/Contentment/Manual/Introduction.pod
 lib/Contentment/Panel.pm
+lib/Contentment/SPOPS.pm
 lib/Contentment/Security.pm
 lib/Contentment/Security/DBI.pm
 lib/Contentment/Session.pm
 lib/Contentment/Setting.pm
-lib/Contentment/SPOPS.pm
 lib/Contentment/Transform/Pod2Html.pm
 lib/Contentment/Util/Transformation.pm
 lib/Contentment/VFS.pm
 lib/Contentment/VFSResolver.pm
 lib/SPOPSx/Tool/DateTime.pm
 lib/SPOPSx/Tool/HashField.pm
-LICENSE
-MANIFEST			This list of files
-README
 META.yml
 Makefile.PL
