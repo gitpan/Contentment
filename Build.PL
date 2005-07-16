@@ -49,23 +49,29 @@ my $build = Contentment::Build->new(
 		'Class::Accessor'         => '0.19',
 		'Data::UUID'		      => '0.11',
 		'DateTime::Format::DBI'   => '0.031',
-		'File::System'            => '1.03',
+		'File::System'            => '1.13',
 		'HTML::Mason'		      => '1.20',
 		'Log::Log4perl'		      => '0.47',
 		'MIME::Types'             => '1.13',
 		'perl'				      => '5.6.1',
 		'SPOPS'				      => '0.87', 
+		'SPOPSx::Tool::DateTime'  => '0.02',
+		'SPOPSx::Tool::YAML'      => '0.03',
 		'SQL::Translator'         => '0.06', 
 		'YAML'				      => '0.35', 
 	},
 	recommends         => {
+		'Apache::Test'            => '1.25',
+		'DBD::mysql'              => '2.9008',
 		'DateTime::Format::MySQL' => '0.0301',
+		'FCGI'                    => '0.67',
 		'Pod::Simple'             => '3.02',
 		'Text::Balanced'	      => '1.95',
 	},
 	PL_files           => {
 		'buildlib/expand-notes.PL' 	=> [
 			'docroots/htdocs/cgi-bin/handler.cgi',
+			'docroots/htdocs/cgi-bin/handler.fcgi',
 			'etc/Contentment.conf.sample', 
 			'etc/log4perl.conf.file',
 			'lib/Contentment/Config.pm',
@@ -120,7 +126,7 @@ $build->{properties}{install_path}{'bin'}      ||= "$cms_root/bin";
 $build->{properties}{install_path}{'docroots'} ||= "$cms_root/docroots";
 $build->{properties}{install_path}{'etc'}      ||= "$cms_root/etc";
 $build->{properties}{install_path}{'logs'}     ||= "$cms_root/logs";
-$build->{properties}{install_path}{'tmp'}      ||= '/tmp/'.basename($cms_root).'/mason/data';
+$build->{properties}{install_path}{'tmp'}      ||= '/tmp/'.basename($cms_root);
 
 $build->notes('basename'   => basename($cms_root));
 $build->notes('etc_dir'    => $build->{properties}{install_path}{'etc'});

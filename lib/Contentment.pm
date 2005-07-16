@@ -3,6 +3,9 @@ package Contentment;
 use strict;
 use warnings;
 
+#use Cache::FileCache;
+use Cache::BaseCache;
+use Cache::NullCache;
 use Carp;
 use Contentment::Config;
 use Contentment::VFS;
@@ -11,7 +14,7 @@ use Log::Log4perl ':easy';
 use Symbol;
 use YAML 'LoadFile';
 
-our $VERSION = '0.009_008';
+our $VERSION = '0.009_015';
 
 BEGIN {
 	Log::Log4perl::easy_init($DEBUG);
@@ -75,6 +78,16 @@ sub configuration {
 	return \%configuration;
 }
 
+=item my $module = Contentment->security
+
+Fetch the configured security module.
+
+=cut
+
+sub security {
+	return Contentment->configuration->{security_module};
+}
+
 =item my $result = Contentment->run_plugin($plugin, @args)
 
 This method loads the given plugin C<$plugin> and runs it with the given C<@args> and returns the result C<$result>. The C<$plugin> variable is a complete package and method name. The method name is stripped and the package name is "used". Then, the method is called.
@@ -113,7 +126,8 @@ sub capture_streams {
 	my $out   = shift;
 	my $code  = shift;
 
-	$log->debug("Redirecting STDIN and STDOUT for capture.");
+	$log->is_debug &&
+		$log->debug("Redirecting STDIN and STDOUT for capture.");
 
 	my $tie_in  = UNIVERSAL::can($in,  'TIEHANDLE');
 	my $tie_out = UNIVERSAL::can($out, 'TIEHANDLE');
@@ -210,6 +224,31 @@ sub capture_streams {
 	}
 }
 
+=item $cache = $context-E<gt>cache($namespace)
+
+Returns a L<Cache::Cache> interface that can be used to cache generated output, etc.
+
+=cut
+
+my %cache;
+sub cache {
+	my $ctx = shift;
+	my $namespace = shift;
+	my $default_expires_in = shift || '3 hours';
+
+	unless (defined $cache{$namespace}) {
+		$cache{$namespace} = Cache::NullCache->new;
+#		$cache{$namespace} = Cache::FileCache->new({
+#			cache_root => Contentment->configuration->{temp_dir}."/cache",
+#			namespace  => $namespace,
+#			default_expires_in => $default_expires_in,
+#			directory_umask => 022,
+#		});
+	}
+
+	return $cache{$namespace};
+}
+
 =item Contentment-E<gt>call_hooks($dir, @args)
 
 Run the appropriate generator on all files in F</content/hooks/$dir> and all subdirectories. The given C<@args> are passed each time.
@@ -223,22 +262,36 @@ Logs, but otherwise ignores, any errors that occur.
 sub call_hooks {
 	my $class = shift;
 	my $dir   = shift;
-	my $vfs   = Contentment::VFS->new;
+	
+#	my $cache = Contentment->cache('Contentment');
+#	my @hooks;
+#	if (my $hooks = $cache->get("hooks:$dir")) {
+#		@hooks = @$hooks;
+#		$log->is_debug &&
+#			$log->debug("Cached ",scalar(@hooks)," hooks in '/content/hooks/$dir'.");
+#	} else {
+		my $vfs   = Contentment::VFS->new;
 
-	my $hook_dir = $vfs->lookup("/content/hooks/$dir");
+		my $hook_dir = $vfs->lookup("/content/hooks/$dir");
 
-	unless ($hook_dir) {
-		$log->warn("Failed to find a directory named '/content/hooks/$dir'. No hooks to run.");
-		return undef;
-	}
+		unless ($hook_dir) {
+			$log->is_debug &&
+				$log->debug("Failed to find a directory named '/content/hooks/$dir'. No hooks to run.");
+			return undef;
+		}
 
-	$log->debug("Looking for hooks in '$hook_dir'");
+		$log->is_debug &&
+			$log->debug("Looking for hooks in '$hook_dir'");
 
-	my @hooks = $hook_dir->find(sub { 
-		my $self = shift;
-		$self->has_content && $self->path !~ /\/\./ 
-	});
-	$log->debug("Found ",scalar(@hooks)," hooks in '$hook_dir'.");
+		my @hooks = $hook_dir->find(sub { 
+			my $self = shift;
+			$self->has_content && $self->path !~ /\/\./ 
+		});
+		$log->is_debug &&
+			$log->debug("Found ",scalar(@hooks)," hooks in '$hook_dir'.");
+
+#		$cache->set("hooks:$dir" => \@hooks);
+#	}
 
 	my $out = File::Temp::tempfile;
 	binmode $out;
@@ -255,7 +308,8 @@ sub call_hooks {
 
 		$result = eval {
 			Contentment->capture_streams($in, $out, sub {
-				$log->debug("Executing hook '$hooks[$i]'");
+				$log->is_debug &&
+					$log->debug("Executing hook '$hooks[$i]'");
 
 				$hooks[$i]->generate(@_)
 			})

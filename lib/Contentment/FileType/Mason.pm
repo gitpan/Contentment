@@ -7,7 +7,7 @@ use base 'Contentment::FileType::Other';
 
 use Log::Log4perl;
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -93,7 +93,8 @@ sub comp {
 
 	return $file->{ft_comp} if defined $file->{ft_comp};
 
-	$log->debug("Loading component for file $file.");
+	$log->is_debug &&
+		$log->debug("Loading component for file $file.");
 	$file->{ft_comp} = $Contentment::context->m->fetch_comp($file->path);
 
 	warn "Failed to fetch Mason component for $file"
@@ -137,6 +138,14 @@ sub get_property {
 	}
 }
 
+=item $headers = Contentment::FileType::Mason-E<gt>generate_headers($file, @args)
+
+Returns an empty hash.
+
+=cut
+
+sub generate_headers { return {} }
+
 =item $result = Contentment::FileType::Mason-E<gt>generate($file, @args)
 
 Runs the Mason component for C<$file>. The output is captured and printed out to the currently C<select>ed file handle. The result of running the component is returned.
@@ -154,7 +163,8 @@ sub generate {
 	my %args  = @_;
 
 	if (my $comp = $class->comp($file)) {
-		$log->debug("Compiling/Running component $file");
+		$log->is_debug &&
+			$log->debug("Compiling/Running component $file");
 
 		my %content;
 		if ($args{content}) {

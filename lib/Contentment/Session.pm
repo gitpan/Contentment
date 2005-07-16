@@ -3,7 +3,7 @@ package Contentment::Session;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
 
 use Contentment;
 use Log::Log4perl;
@@ -26,12 +26,12 @@ my %spops = (
 	session => {
 		class             => 'Contentment::Session',
 		isa               => [ qw/ SPOPS::Key::Random Contentment::SPOPS / ],
-		rules_from        => [ qw/ SPOPSx::Tool::HashField / ],
+		rules_from        => [ qw/ SPOPSx::Tool::YAML / ],
 		base_table        => 'session',
 		field             => [ qw/ session_id session_data / ],
 		id_field          => 'session_id',
 		id_width          => 20,
-		hash_fields       => [ 'session_data' ],
+		yaml_fields       => [ 'session_data' ],
 		no_insert         => [ 'session_id' ],
 		no_update         => [ 'session_id' ],
 	},
@@ -102,7 +102,8 @@ sub open_session {
 	if ($id) {
 		$session = Contentment::Session->fetch($id, { skip_security => 1 });
 		if ($session) {
-			$log->debug("Reusing existing SESSIONID $id");
+			$log->is_debug &&
+				$log->debug("Reusing existing SESSIONID $id");
 			%session = %{ $session->session_data };
 		}
 	}
@@ -113,7 +114,8 @@ sub open_session {
 		$session->save;
 
 		$id = $session->id;
-		$log->debug("Creating a new SESSIONID $id");
+		$log->is_debug &&
+			$log->debug("Creating a new SESSIONID $id");
 	}
 
 	my $conf = Contentment->configuration;

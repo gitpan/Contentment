@@ -10,7 +10,7 @@ use Log::Log4perl;
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -75,6 +75,14 @@ sub generated_kind {
 	return $generated_kind;
 }
 
+=item $headers = Contentment::FileType::PL-E<gt>generate_headers($file, @args)
+
+Returns an empty reference to a hash.
+
+=cut
+
+sub generate_headers { return {} }
+
 =item $result = Contentment::FileType::Perl-E<gt>generate($file, @args)
 
 Wraps the contents of the file in an eval as part of a subroutine and calls the subroutine.
@@ -104,7 +112,8 @@ sub generate {
 		croak $@ if $@ 
 	};
 
-	$log->debug("Running code in '$file'");
+	$log->is_debug &&
+		$log->debug("Running code in '$file'");
 
 #	Carp::cluck("Running code in '$file'");
 
