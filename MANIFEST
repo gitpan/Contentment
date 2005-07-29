@@ -1,8 +1,10 @@
+.releaserc
 Build.PL
 buildlib/Contentment/Build.pm
 buildlib/Contentment/Test.pm
 buildlib/docindex.PL
 buildlib/expand-notes.PL
+buildlib/Module/Release/HANENKAMP.pm
 docroots/htdocs/cgi-bin/.htaccess
 docroots/htdocs/cgi-bin/handler-path.cgi.sample
 docroots/htdocs/cgi-bin/handler-path.fcgi.sample
@@ -67,6 +69,7 @@ etc/Contentment.defaults.conf
 etc/log4perl.conf.file.in
 etc/log4perl.conf.stderr
 lib/Contentment.pm
+lib/Contentment/Config.pm
 lib/Contentment/Config.pm.in
 lib/Contentment/Content/Node.pm
 lib/Contentment/Content/Nodelet.pm
@@ -82,6 +85,7 @@ lib/Contentment/Form/Widget/Input.pm
 lib/Contentment/Form/Widget/Null.pm
 lib/Contentment/Form/Widget/Select.pm
 lib/Contentment/Form/Widget/TextArea.pm
+lib/Contentment/Manual.pod
 lib/Contentment/Manual.pod.in
 lib/Contentment/Manual/Bugs.pod
 lib/Contentment/Manual/Features.pod
@@ -98,17 +102,27 @@ lib/Contentment/Util/Transformation.pm
 lib/Contentment/VFS.pm
 lib/Contentment/VFSResolver.pm
 LICENSE
+Makefile.PL
 MANIFEST			This list of files
+META.yml
 README
 t/capture_streams.t
 t/conf/extra.conf.in
 t/configuration.t
+t/context_plain.t
+t/context_request.t
 t/etc/Contentment.conf
 t/etc/Contentment.defaults.conf
 t/etc/log4perl.conf
 t/lib/Foo/Bar.pm
+t/logs/access_log
+t/logs/contentment.log
+t/logs/error_log
+t/logs/rewrite_log
+t/node.t
+t/nodelet.t
 t/run_plugin.t
+t/sample_css.t
 t/sample_index.t
 t/TEST.PL
-META.yml
-Makefile.PL
+t/testdocs/context_request.mhtml

@@ -1,0 +1,91 @@
+=for comment AUTOMATICALLY GENERATED! DO NOT MODIFY!!! MODIFY Manual.pod.in INSTEAD!!!
+
+=head1 NAME
+
+Contentment::Manual - Table of Contents 
+
+=head1 TABLE OF CONTENTS
+
+=head2 MANUAL
+
+L<Contentment::Manual::Introduction> - Introduction to Contentment
+
+L<Contentment::Manual::Install> - Installation instructions
+
+L<Contentment::Manual::Features> - Overview of the features of Contentment
+
+L<Contentment::Manual::Bugs> - An overview of the stuff needed doing
+
+=head2 PERL API
+
+L<Contentment> - A Mason/Perl-based content management system
+
+L<Contentment::Content::Node> - Handy module for storing common data
+
+L<Contentment::Content::Nodelet> - Helper class for building node modules
+
+L<Contentment::Context> - Starting point for information about the current request
+
+L<Contentment::FileType> - Contract all filetype plugins must adhere to
+
+L<Contentment::FileType::HTML> - File type plugin for HTML files
+
+L<Contentment::FileType::Mason> - This file type plugin is used to represent HTML::Mason files
+
+L<Contentment::FileType::Other> - Generic file type plugin
+
+L<Contentment::FileType::PL> - A file type plugin for handling Perl scripts
+
+L<Contentment::FileType::POD> - A file type plugin for handling Plain Old Documentation
+
+L<Contentment::Form> - Defines forms, widgets, and submissions API
+
+L<Contentment::Form::Widget::Input> - Submission processor for HTML input widgets.
+
+L<Contentment::Form::Widget::Label> - Label widget
+
+L<Contentment::Form::Widget::Select> - HTML Select widget processor
+
+L<Contentment::Form::Widget::TextArea> - HTML text area widget processor
+
+L<Contentment::Manual::Bugs> - An overview of the stuff needed doing
+
+L<Contentment::Manual::Features> - An overview of the features of Contentment
+
+L<Contentment::Manual::Install> - The installation guide for Contentment
+
+L<Contentment::Manual::Introduction> - Introduction to the Contentment content management system.
+
+L<Contentment::Panel> - The panel API is used to allow for multipurpose "panes" in a page
+
+L<Contentment::SPOPS> - This is the base class for all SPOPS DBI objects in Contentment
+
+L<Contentment::Security> - Framework for security in Contentment
+
+L<Contentment::Security::DBI> - Defines a simple, but relatively complete database security model
+
+L<Contentment::Session> - Session management for Contentment
+
+L<Contentment::Setting> - A basic module for storing database settings
+
+L<Contentment::Transform::Pod2Html> - Uses Pod::Simple to create an HTML fragment
+
+L<Contentment::Util::Transformation> - Find the best transformation available
+
+L<Contentment::VFS> - Provides a virtual file system for Contentment
+
+L<Contentment::VFSResolver> - Subclass of HTML::Mason::Resolver for Contentment::VFS
+
+
+
+=head2 MASON API
+
+L</content/transform/apply_transformation> - Applies file content transformations
+
+
+
+=head1 COPYRIGHT
+
+Copyright 2005 Andrew Sterling Hanenkamp. All Rights Reserved.
+
+=for meta short_title => 'Manual'

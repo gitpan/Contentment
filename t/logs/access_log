@@ -1,0 +1,4 @@
+127.0.0.1 - - [28/Jul/2005:22:35:41 -0500] "GET /index.html HTTP/1.0" 200 1158
+127.0.0.1 - - [28/Jul/2005:22:35:51 -0500] "GET /context_request.txt HTTP/1.0" 200 86
+127.0.0.1 - - [28/Jul/2005:22:35:59 -0500] "GET /content/themes/default/style/main.css HTTP/1.0" 200 49
+127.0.0.1 - - [28/Jul/2005:22:36:04 -0500] "GET /index.html HTTP/1.0" 200 1158

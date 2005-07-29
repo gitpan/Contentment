@@ -2,7 +2,7 @@ package Contentment::Build;
 
 use strict;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 BEGIN {
 	use Module::Build;
@@ -14,6 +14,34 @@ BEGIN {
 use ExtUtils::Install;
 use File::Path;
 use File::Spec;
+
+sub ACTION_release {
+	my $self = shift;
+
+	require Module::Release;
+
+	# Let's <> work the way Module::Release expects	
+	@ARGV = ();
+
+	my $r = Module::Release->new;
+	$r->clean;
+	$r->build_makefile;
+	$r->test;
+	$r->dist;
+	$r->dist_test;
+	$r->check_cvs;
+	exit if $self->args('t');
+
+	$r->check_for_passwords;
+	$r->cvs_tag;
+	$r->ftp_upload;
+	$r->pause_claim;
+	$r->sf_login;
+	$r->sf_qrs;
+	$r->sf_release;
+
+	print "Done.\n";
+}
 
 sub ACTION_install {
 	my $self = shift;
@@ -54,6 +82,8 @@ sub ACTION_empty_logs {
 sub ACTION_test {
 	my $self = shift;
 
+	$self->ACTION_build;
+
 	mkpath('t/htdocs/cgi-bin', 1);
 	mkpath('t/tmp', 1);
 
@@ -77,12 +107,27 @@ sub ACTION_test {
 	close IN;
 	close OUT;
 
-	$self->make_executable('t/htdocs/cgi-bin');
+	$self->make_executable('t/htdocs/cgi-bin/handler.cgi');
 
 	$self->add_to_cleanup('t/htdocs/cgi-bin/handler.cgi');
 	$self->add_to_cleanup('t/tmp');
 
 	$self->SUPER::ACTION_test;
+}
+
+sub ACTION_dbclean {
+	my $self = shift;
+
+	require blib;
+	require Contentment;
+	require Contentment::Test;
+	require Contentment::SPOPS;
+
+	my $dbh = Contentment::SPOPS->global_datasource_handle;
+	for my $table ($dbh->tables(undef, undef, undef, undef)) {
+		print STDERR "Droping table $table\n";
+		$dbh->do("drop table $table");
+	}
 }
 
 sub process_mason_files {

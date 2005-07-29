@@ -1,4 +1,57 @@
 ------------------------------------------------------------------------
+r501 | sterling | 2005-07-28 22:35:00 -0500 (Thu, 28 Jul 2005) | 3 lines
+
+	* Added a work-around to the release target to allow Module::Release and
+	  friends to request input from the user.
+
+------------------------------------------------------------------------
+r500 | sterling | 2005-07-28 22:17:57 -0500 (Thu, 28 Jul 2005) | 11 lines
+
+Contentment 0.9.17 Beta:
+
+	* Set t/node.t and t/nodelet.t to skip as those APIs are unfinished.
+	* Added context requests for plain and Mason-request context
+	* Added support for making releases with Brian D Foy's excellent
+	  Module::Release code. There is now a "./Build release" command to do all
+	  the dirty work automatically and I made a custom extension
+	  Module::Build::HANENKAMP based upon Module::Build::Extras by Nik Clayton.
+	* Added the context() method to Contentment for easy creation/retrieval of
+	  the current context information.
+
+------------------------------------------------------------------------
+r499 | sterling | 2005-07-21 13:13:31 -0500 (Thu, 21 Jul 2005) | 6 lines
+
+	* Updated Mason requirement to 1.23 for the HTML::Mason::FakeApache::method
+	  method.
+	* Added some guts to main.css in the default style, mostly so that we can
+	  have something to test in t/sample_css.t
+	* Altered /content/util/generate to make the "to" command work.
+
+------------------------------------------------------------------------
+r498 | sterling | 2005-07-16 10:16:39 -0500 (Sat, 16 Jul 2005) | 5 lines
+
+	* PROGRESS [cpan #13734] Added tests for Contentment::Content::Node in
+	  t/node.t, all but one test fail.
+	* PROGRESS [cpan #13735] Added tests for Contentment::Content::Nodelet in
+	  t/nodelet.t, all tests fail.
+
+------------------------------------------------------------------------
+r497 | sterling | 2005-07-16 09:45:13 -0500 (Sat, 16 Jul 2005) | 13 lines
+
+Contentment 0.9.16 Beta:
+
+	* Fixed a bug in the test action of Contentment::Build whereby
+	* make_executable() was called on the wrong path, when it should have been
+	* called on t/htdocs/cgi-bin/handler.cgi.
+	* Added a new build target named "dbclean" to clean up the test database.
+	* This target finds all tables in the testdb database database and drops.
+	* Changed quoting in a call to DBI::tables in Contentment::SPOPS to be a
+	* little more robust.
+	* Added/renamed some fields in Contentment::Content::Node and
+	* Contentment::Content::Revision.
+	* Started filling out Contentment::Content::Nodelet.
+
+------------------------------------------------------------------------
 r495 | sterling | 2005-07-15 20:08:38 -0500 (Fri, 15 Jul 2005) | 20 lines
 
 Contentment 0.9.15 Beta:
