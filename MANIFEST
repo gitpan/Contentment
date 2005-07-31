@@ -1,4 +1,3 @@
-.releaserc
 Build.PL
 buildlib/Contentment/Build.pm
 buildlib/Contentment/Test.pm
@@ -15,10 +14,8 @@ docroots/master/content/filter/apply_filter.mason
 docroots/master/content/filter/modules/80-theme
 docroots/master/content/filter/modules/90-css-links
 docroots/master/content/filter/modules/90-html-links
-docroots/master/content/hooks/request/finish/90_close_session.pl
 docroots/master/content/hooks/request/postprocess/70_transform.pl
 docroots/master/content/hooks/request/postprocess/90_filter.pl
-docroots/master/content/hooks/request/preprocess/10_open_session.pl
 docroots/master/content/input/autohandler
 docroots/master/content/input/dhandler
 docroots/master/content/kind/final/kind
@@ -69,7 +66,6 @@ etc/Contentment.defaults.conf
 etc/log4perl.conf.file.in
 etc/log4perl.conf.stderr
 lib/Contentment.pm
-lib/Contentment/Config.pm
 lib/Contentment/Config.pm.in
 lib/Contentment/Content/Node.pm
 lib/Contentment/Content/Nodelet.pm
@@ -85,7 +81,6 @@ lib/Contentment/Form/Widget/Input.pm
 lib/Contentment/Form/Widget/Null.pm
 lib/Contentment/Form/Widget/Select.pm
 lib/Contentment/Form/Widget/TextArea.pm
-lib/Contentment/Manual.pod
 lib/Contentment/Manual.pod.in
 lib/Contentment/Manual/Bugs.pod
 lib/Contentment/Manual/Features.pod
@@ -115,14 +110,11 @@ t/etc/Contentment.conf
 t/etc/Contentment.defaults.conf
 t/etc/log4perl.conf
 t/lib/Foo/Bar.pm
-t/logs/access_log
-t/logs/contentment.log
-t/logs/error_log
-t/logs/rewrite_log
 t/node.t
 t/nodelet.t
 t/run_plugin.t
 t/sample_css.t
 t/sample_index.t
+t/security_dbi.t
 t/TEST.PL
 t/testdocs/context_request.mhtml

@@ -1,4 +1,68 @@
 ------------------------------------------------------------------------
+r504 | sterling | 2005-07-30 23:51:05 -0500 (Sat, 30 Jul 2005) | 61 lines
+
+Contentment 0.9.18 Beta:
+
+	* Did some work to update t/node.t and get those tests working.
+	* Added t/security_dbi.t to test Contentment::Security and
+	  Contentment::Security::DBI and fixed a bunch of bugs related to writing
+	  that test.
+	* Changed the default original_kind in the context to 'text/html' from
+	  'unknown'. (This is a web application after all.)
+	* Hard-coded the open_session and close_session in order to allow for a
+	  complete context without a lot of fuss.
+	* Locked the system into using SPOPS::DBI::MySQL to fix some id field bugs
+	  found with t/security_dbi.t. Obviously, I would like to undo this in the
+	  future to allow for different databases to be used.
+	* Fixed a bunch of security related bugs by adding { skip_security => 1 } in
+	  a few key places where this is appropriate.
+	* Updated check_action_security() in Contentment::SPOPS so that it throws
+	  exceptions on creation when a requirement fails.
+	* Added lots of extra debugging and logging code.
+	* Fixed a bug in get_security() of Contentment::SPOPS that caused the system
+	  to sometimes fail while calculating the ID.
+	* Completely changed the way capability_names are mapped to security levels.
+	  (I.e., what the hell was I thinking when I wrote the original code!?)
+	* The default get_security() method (in Contentment::SPOPS) is a little more
+	  conservative in calculating security levels (as it always should have
+	  been).
+	* Fixed the way global_current_user() and global_current_group() are
+	  calculated in Contentment::SPOPS as they were using a very old session
+	  implementation.
+	* Refactored all references to $Contentment::context to
+	  Contentment->context.
+	* Fixed the SPOPS configuration for Contentment::Security::Permission.
+	* Added a can_create() method to Contentment::Session to allow all users to
+	  create sessions.
+	* Altered open_session() in Contentment::Session to make it work even when
+	  called outside a web request (in case someone (me) wants to write a script
+	  to use Contentment without a browser).
+	* Altered context construction to work a bit better.
+	* Added a destructor to Contentment::Context that calls close_session() of
+	  Contentment::Session. I have marked it with a TODO because I don't know if
+	  this is the best place for this.
+	* Added DateTime support to Contentment::Security::DBI::User and
+	  Contentment::Security::DBI::Group.
+	* Altered the definition of the database tables for
+	  Contentment::Security::DBI::User and Contentment::Security::DBI::Group to
+	  make it a little less restrictive.
+	* Added code to automatically update ctime, mtime, and dtime when
+	  appropriate in Contentment::Security::DBI::User and
+	  Contentment::Security::DBI::Group.
+	* Added custom get_security() methods to Contentment::Security::DBI::User
+	  and Contentment::Security::DBI::Group to always allow users to view their
+	  own user and groups.
+	* Updated check_login() in Contentment::Security::DBI to set the lastlog
+	  field of the user on successful login, to give better log information, to
+	  use the latest notion of a session, and to load the actual user record
+	  into the current_user slot of the context.
+	* Updated fetch_user() and fetch_group() of Contentment::Security::DBI to
+	  fetch users and groups by either ID or username/groupname.
+	* Altered the %R spec of the sample Log4perl configurations to use "none"
+	  instead of undef when REMOTE_ADDR isn't set in the environment (when
+	  Contentment is used as a stand-alone app rather than as a web script).
+
+------------------------------------------------------------------------
 r501 | sterling | 2005-07-28 22:35:00 -0500 (Thu, 28 Jul 2005) | 3 lines
 
 	* Added a work-around to the release target to allow Module::Release and

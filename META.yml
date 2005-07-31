@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Contentment
-version: 0.009_017
+version: 0.009_018
 author:
   - Andrew Sterling Hanenkamp E<lt>hanenkamp@users.sourceforge.netE<gt>
 abstract: A Mason/Perl-based content management system
