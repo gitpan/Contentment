@@ -10,20 +10,9 @@ RewriteLogLevel 2
 	# stuff to work.
 	Options FollowSymLinks
 
-	# behind the scenes, pass every URL on to the CGI handler. This way, they go to
-	# /foo/bar/baz, but the web server sees /cgi-bin/handler.cgi/foo/bar/baz
 	RewriteEngine on
-	#RewriteBase "/"
-	#RewriteCond "%{REQUEST_FILENAME}" -d
-	#RewriteRule "^(.+[^/])$" "$1/"                            [L,R]
-	RewriteRule "^$"         "cgi-bin/handler.cgi/index.html" [L]
-	##RewriteCond "%{REQUEST_FILENAME}" !-f
-	RewriteRule "(.*)$"      "cgi-bin/handler.cgi/$1"         [L]
-
-	# Comment out the two lines above and uncomment these to use FastCGI instead of
-	# plain "slow" CGI
-	#RewriteRule "^$"         "cgi-bin/handler.fcgi/index.html" [L]
-	#RewriteRule "(.*)$"      "cgi-bin/handler.fcgi/$1"         [L]
+	RewriteRule "^$"		"cgi-bin/contentment.cgi/index.html" [L]
+	RewriteRule "(.*)$"		"cgi-bin/contentment.cgi/$1"         [L]
 </Directory>
 
 <Directory @documentroot@/cgi-bin/>
@@ -35,4 +24,3 @@ RewriteLogLevel 2
 	Options ExecCGI
 	AddHandler cgi-script .cgi
 </Directory>
-

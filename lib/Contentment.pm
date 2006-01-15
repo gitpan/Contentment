@@ -3,371 +3,361 @@ package Contentment;
 use strict;
 use warnings;
 
-#use Cache::FileCache;
-use Cache::BaseCache;
-use Cache::NullCache;
+our $VERSION = 0.011_029;
+
 use Carp;
-use Contentment::Config;
-use Contentment::VFS;
-use File::Temp;
-use HTML::Mason::Request;
-use Log::Log4perl ':easy';
-use Symbol;
-use YAML 'LoadFile';
-
-our $VERSION = '0.009_018';
-
-BEGIN {
-	Log::Log4perl::easy_init($DEBUG);
-}
-
-sub dc { sprintf "(package %s) (file %s:line %d) (called %s)", @_ }
-sub scream {
-	my $i = 2;
-	my $str;
-	while (my @c = caller($i++)) {
-		$str .= sprintf "\tFrom package %s (%s:%d) called %s\n", @c;
-	}
-	return $str;
-}
-$SIG{__WARN__} = sub { Log::Log4perl::get_logger->warn(dc(caller(1)), @_) };
-$SIG{__DIE__}  = sub { eval { Log::Log4perl::get_logger->error("An error prevented Contentment from serving this request: @_\n ",scream) }; confess @_; };
-
-my $log = Log::Log4perl->get_logger(__PACKAGE__);
+use Contentment::Hooks;
+use Contentment::Log;
+use Contentment::MIMETypes;
+use Contentment::Response;
+use Contentment::Request;
+use Cwd ();
+use File::Spec;
+use YAML ();
 
 =head1 NAME
 
-Contentment - A Mason/Perl-based content management system
+Contentment - Contentment is a Perl-based web content management system
 
 =head1 DESCRIPTION
 
-General configuration information and some general-purpose methods can be found in this module.
+=head2 METHODS
 
 =over
 
-=item $conf = Contentment->configuration
+=item $global_init = Contentment-E<gt>global_configuration
 
-Reads the configuration files F<ETC_DIR/Contentment.defaults.conf> and F<ETC_DIR/Contentment.conf>.
+Returns the global initializer configuration. This is stored in F<init.yml> in the same directory as the CGI script, as of this writing.
+
+The C<$global_init> should be a reference to a hash.
 
 =cut
 
-my %configuration;
-sub configuration {
-	unless (%configuration) {
-		my $defaults_file = Contentment::Config::ETC_DIR.'/Contentment.defaults.conf';
-		my $locals_file   = Contentment::Config::ETC_DIR.'/Contentment.conf';
+my $global_init;
+sub global_configuration {
+	return $global_init;
+}
 
-		my ($defaults, $locals);
+=item Contentment-E<gt>begin
+
+Perform the initialization tasks for Contentment. Including running all hooks registered for "C<Contentment::begin>".
+
+=cut
+
+sub begin {
+	# TODO Determine if assuming the cgi-bin is the cwd is a good idea.
+	
+	# We assume the the directory the CGI is running in is the current working
+	# directory. We assume we will find a file named "init.yml" there that will
+	# contain the initial configuration for Contentment.
+	my $cwd         = Cwd::getcwd;
+	my $init_config = File::Spec->catfile($cwd, 'init.yml');
+	$global_init    = YAML::LoadFile($init_config);
+
+	# Load Plugins Phase #1: Find the plugins.
+
+	# Find the directory/directories to start searching for plugins.
+	my @plugins_dir = ($global_init->{plugins_dir});
+	@plugins_dir = ref($plugins_dir[0]) ? @{$plugins_dir[0]} : @plugins_dir;
+
+	# Search these plugin directories for plugins that we have not seen yet.
+	my %plugins;
+	for my $plugins_dir (@plugins_dir) {
+		opendir PLUGINS, $plugins_dir;
+		while (my $plugin_dir = readdir PLUGINS) {
+			my $full_plugin_dir = File::Spec->catdir($plugins_dir, $plugin_dir);
+
+			# Ignore superfluous crap we find
+			next unless -d $full_plugin_dir;
+			next if $plugin_dir =~ /^\./;
+
+			# If the directory doesn't have an init.yml, it ain't a plugin.
+			my $init_config = File::Spec->catfile($full_plugin_dir, 'init.yml');
+			unless (-f $init_config) {
+				Contentment::Log->warning("Directory $full_plugin_dir doesn't have an init.yml, skipping as if not a plugin.");
+				next;
+			}
+
+			# Try to load the settings.
+			Contentment::Log->info("Loading plugin configuration $init_config");
+			my $init = eval { YAML::LoadFile($init_config); };
+
+			# If we failed, log it, but continue.
+			if ($@) {
+				Contentment::Log->error("Failed loading plugin configuration $init_config: $@");
+				next;
+			}
+
+			# It must have a name
+			unless ($init->{name}) {
+				Contentment::Log->error("Plugin configuration $init_config is missing the 'name' attribute. Skipping plugin.");
+				next;
+			}
+			
+			# It must have a version
+			unless ($init->{version}) {
+				Contentment::Log->error("Plugin configuraiton $init_config is missing the 'version' attribute. Skipping plugin.");
+				next;
+			}
+
+			# Remember the plugin directory location.
+			$init->{plugin_dir} = $full_plugin_dir;
+
+			# Set the order to 0 if not given
+			$init->{order} ||= 0;
+			
+			# Use the installed init settings, if already installed. This allows
+			# the user to change the way the plugin operates after installation.
+			eval {
+				my $stored_init = Contentment::Setting->instance->{"Contentment::Plugin::$init->{name}"};
+				if ($stored_init && $stored_init->{version} eq $init->{version}) {
+					Contentment::Log->debug("Using stored init for plugin %s %s", [$init->{name},$init->{version}]);
+					$init = $stored_init;
+				}
+			};
+
+			# Remember we loaded this.
+			$plugins{$init->{name}} = $init;
+		}
+		closedir PLUGINS;
+	}
+
+	# Load Plugins Phase #2: Load the plugins.
+	
+	# Sort the plugins by their given load order.
+	# TODO Make this a "depends" instead.
+	my @plugins = sort { $a->{order} <=> $b->{order} } values %plugins;
+	
+	# Load each plugin in order
+	for my $plugin (@plugins) {
+		Contentment::Log->info("Loading plugin %s %s", [$plugin->{name}, $plugin->{version}]);
+		eval { Contentment->load_plugin($plugin) };
+		Contentment::Log->error("Failed loading plugin %s: %s", [$plugin->{name},$@]) if $@;
+	}
+
+	# Load Plugind Phase #3: Install/Upgrade/Remove the plugins.
+
+	# Get ready to figure out what's installed and not
+	my $settings = Contentment::Setting->instance;
+	my $installed = $settings->{'Contentment::installed'};
+
+	# Check each plugin to see if it is installed. If not, install it.
+	my $iter = Contentment::Hooks->call_iterator('Contentment::install');
+	while ($iter->next) {
+		# Skip install if it's installed.	
+		if ($installed && $installed->{$iter->name}) {
+			Contentment::Log->debug("Skipping install of %s as version %s is already here.", [$iter->name,$installed->{$iter->name}]);
+			next;
+		}
+
+		# Run the handler.
+		my $plugin = $plugins{$iter->name};
 		eval {
-			$defaults = LoadFile($defaults_file);
-			$locals   = LoadFile($locals_file);
+			$iter->call($plugin);
 		};
 
-		if ($@) { die "Error loading configuration: $@" }
-
-		%configuration = (%$defaults, %$locals);
-
-		# Initialize Log4perl
-		if (my $log4perl_conf = $configuration{log4perl_conf}) {
-			Log::Log4perl::init($log4perl_conf);
-		} else {
-			Log::Log4perl::easy_init($DEBUG);
-			warn 'No log4perl.conf specified. Sending DEBUG and above to STDERR.';
-		}
-	}
-	
-	return \%configuration;
-}
-
-=item my $module = Contentment-E<gt>security
-
-Fetch the configured security module.
-
-=cut
-
-sub security {
-	return Contentment->configuration->{security_module};
-}
-
-=item my $context = Contentment-E<gt>context
-
-This method returns the singleton object for L<Contentment::Context>.
-
-=cut
-
-our $context;
-sub context {
-	return $context if $context;
-
-	Contentment->configuration;
-
-	require Contentment::Context;
-	require Contentment::Session;
-
-	my $self = shift;
-	my $args = shift || {};
-	my @last_processed = @_;
-
-	my $m = HTML::Mason::Request->instance;
-
-	my $r = eval { $m->apache_req } || eval { $m->cgi_request };
-
-	$context = Contentment::Context->new({
-		url            => eval { $m->cgi_object->url } || undef,
-		m              => $m,
-		r              => $r,
-		%$args,
-	});
-
-	Contentment::Session->open_session;
-
-	return $context;
-}
-
-=item my $result = Contentment-E<gt>run_plugin($plugin, @args)
-
-This method loads the given plugin C<$plugin> and runs it with the given C<@args> and returns the result C<$result>. The C<$plugin> variable is a complete package and method name. The method name is stripped and the package name is "used". Then, the method is called.
-
-=cut
-
-sub run_plugin {
-	my $class = shift;
-	my $plugin = shift;
-
-	my ($package, $method) = $plugin =~ m/^(.*?)::(\w+)$/
-		or die "Invalid plugin named $plugin";
-
-	eval "use $package";
-	warn "Problem loading plugin $package: $@" if $@;
-
-	no strict 'refs';
-	return $plugin->(@_);
-}
-
-=item $result = Contentment-E<gt>capture_streams($in, $out, $code, @args)
-
-This is a helpful method for redirecting input and output for some bit of code. The C<$in> must be a readable file handle and C<$out> must be a writable file handle. The C<$code> is a CODE reference to be run.
-
-First, the C<STDIN> file handle will be saved and then redirected to use C<$in>. The C<STDOUT> file handle will be saved and then redirected to use C<$out>.
-
-Next, the C<$code> will be run in this environment and any additional arguments given will be based to the subroutine.
-
-Finally, C<STDIN> and C<STDOUT> are restored and any result returned by C<$code> is returned. If an exception is raised while running C<$code>, then the file handles are safely restored before this method rethrows the exception.
-
-=cut
-
-sub capture_streams {
-	my $class = shift;
-	my $in    = shift;
-	my $out   = shift;
-	my $code  = shift;
-
-	$log->is_debug &&
-		$log->debug("Redirecting STDIN and STDOUT for capture.");
-
-	my $tie_in  = UNIVERSAL::can($in,  'TIEHANDLE');
-	my $tie_out = UNIVERSAL::can($out, 'TIEHANDLE');
-
-	my ($save_in, $save_out);
-	my ($save_in_fd, $save_out_fd);
-
-	# Save/capture STDIN
-	if ($tie_in) {
-		$save_in = tied *STDIN;
-		tie *STDIN, $in;
-	} else {
-		if (tied *STDIN) {
-			$save_in = tied *STDIN;
-			no warnings 'untie';
-			untie *STDIN;
-		}
-		$save_in_fd = gensym;
-		open($save_in_fd, '<&STDIN');
-		open(STDIN, '<&='.fileno($in));
-	}
-
-	# Save/capture STDOUT
-	if ($tie_out) {
-		$save_out = tied *STDOUT;
-		tie *STDOUT, $out;
-	} else {
-		if (tied *STDOUT) {
-			$save_out = tied *STDOUT;
-			no warnings 'untie';
-			untie *STDOUT;
-		}
-		$save_out_fd = gensym;
-		open($save_out_fd, '>&STDOUT');
-		open(STDOUT, '>&='.fileno($out));
-	}
-
-	my $ofh = select STDOUT;
-
-	# Run code within captured handles
-	my $result;
-	my $wantarray = wantarray;
-	eval {
-		if ($wantarray) {
-			my @array = $code->(@_);
-			$result = \@array;
-		} else {
-			$result = $code->(@_);
-		}
-	};
-
-	my $ERROR = $@;
-
-	select $ofh;
-
-	# Restore STDOUT
-	if ($tie_out) {
-		if (defined $save_out) {
-			tie *STDOUT, $save_out;
-		} else {
-			no warnings 'untie';
-			untie *STDOUT;
-		}
-	} else {
-		open(STDOUT, '>&='.fileno($save_out_fd));
-		close($save_out_fd);
-		
-		if (defined $save_out) {
-			tie *STDOUT, $save_out;
-		}
-	}
-
-	# Restore STDIN
-	if ($tie_in) {
-		if (defined $save_in) {
-			tie *STDIN, $save_in;
-		} else {
-			no warnings 'untie';
-			untie *STDIN;
-		}
-	} else {
-		open(STDIN, '<&='.fileno($save_in_fd));
-		close($save_in_fd);
-
-		if (defined $save_in) {
-			tie *STDIN, $save_in;
-		}
-	}
-
-	if ($ERROR) {
-		die $ERROR;
-	} else {
-		return $wantarray ? @$result : $result;
-	}
-}
-
-=item $cache = $context-E<gt>cache($namespace)
-
-Returns a L<Cache::Cache> interface that can be used to cache generated output, etc.
-
-=cut
-
-my %cache;
-sub cache {
-	my $ctx = shift;
-	my $namespace = shift;
-	my $default_expires_in = shift || '3 hours';
-
-	unless (defined $cache{$namespace}) {
-		$cache{$namespace} = Cache::NullCache->new;
-#		$cache{$namespace} = Cache::FileCache->new({
-#			cache_root => Contentment->configuration->{temp_dir}."/cache",
-#			namespace  => $namespace,
-#			default_expires_in => $default_expires_in,
-#			directory_umask => 022,
-#		});
-	}
-
-	return $cache{$namespace};
-}
-
-=item Contentment-E<gt>call_hooks($dir, @args)
-
-Run the appropriate generator on all files in F</content/hooks/$dir> and all subdirectories. The given C<@args> are passed each time.
-
-The first hook will be given the input from the current C<STDIN> and the last hook will generate output straight to the current C<STDOUT>. In between, the previous hooks output to C<STDOUT> becomes the next hooks input on C<STDIN>.
-
-Logs, but otherwise ignores, any errors that occur.
-
-=cut
-
-sub call_hooks {
-	my $class = shift;
-	my $dir   = shift;
-	
-#	my $cache = Contentment->cache('Contentment');
-#	my @hooks;
-#	if (my $hooks = $cache->get("hooks:$dir")) {
-#		@hooks = @$hooks;
-#		$log->is_debug &&
-#			$log->debug("Cached ",scalar(@hooks)," hooks in '/content/hooks/$dir'.");
-#	} else {
-		my $vfs   = Contentment::VFS->new;
-
-		my $hook_dir = $vfs->lookup("/content/hooks/$dir");
-
-		unless ($hook_dir) {
-			$log->is_debug &&
-				$log->debug("Failed to find a directory named '/content/hooks/$dir'. No hooks to run.");
-			return undef;
-		}
-
-		$log->is_debug &&
-			$log->debug("Looking for hooks in '$hook_dir'");
-
-		my @hooks = $hook_dir->find(sub { 
-			my $self = shift;
-			$self->has_content && $self->path !~ /\/\./ 
-		});
-		$log->is_debug &&
-			$log->debug("Found ",scalar(@hooks)," hooks in '$hook_dir'.");
-
-#		$cache->set("hooks:$dir" => \@hooks);
-#	}
-
-	my $out = File::Temp::tempfile;
-	binmode $out;
-	while (<STDIN>) {
-		print $out $_;
-	}
-	seek $out, 0, 0;
-
-	my ($in, $result);
-	for (my $i = 0; $i <= $#hooks; ++$i) {
-		$in  = $out;
-		$out = File::Temp::tempfile;
-		binmode $out;
-
-		$result = eval {
-			Contentment->capture_streams($in, $out, sub {
-				$log->is_debug &&
-					$log->debug("Executing hook '$hooks[$i]'");
-
-				$hooks[$i]->generate(@_)
-			})
-		};
-
+		# Check for errors
 		if ($@) {
-			$log->error("Error during call_hooks ($hooks[$i]): $@");
+			Contentment::Log->error("Error installing plugin %s %s: %s", [$iter->name,$plugin->{version},$@]);
 		}
 
-		seek $out, 0, 0;
+		# Record the installed version, if we can.
+		Contentment::Log->info("Installed plugin %s %s",[$iter->name,$plugin->{version}]);
+		$installed->{$iter->name} = $plugin->{version};
+		$settings->{'Contentment::Plugin::'.$iter->name} = $plugin;
 	}
 
-	while (<$out>) {
-		print STDOUT $_;
+	# Now check for upgrades.
+	$iter = Contentment::Hooks->call_iterator('Contentment::upgrade');
+	while ($iter->next) {
+		my $plugin = $plugins{$iter->name};
+		
+		# If the installed version is the same as this version, skip this
+		# handler.
+		next if $installed->{$iter->name} == $plugin->{version};
+
+		# Run the handler.
+		$iter->call($settings->{'Contentment::Plugin::'.$iter->name}, $plugin);
+
+		# Note that it's now installed and record the version.
+		Contentment::Log->info("Upgraded plugin %s from %s to %s",[$iter->name,$installed->{$iter->name},$plugin->{version}]);
+		$installed->{$iter->name} = $plugin->{version};
+        $settings->{'Contentment::Plugin::'.$iter->name} = $plugin;
+	}
+
+	# Save the install/upgrade settings.
+	$settings->{'Contentment::installed'} = $installed;
+
+	# Now that all is installed, initialize all the begin handlers
+	Contentment::Log->debug("Calling hook Contentment::begin");
+	Contentment::Hooks->call('Contentment::begin');
+}
+
+sub load_plugin {
+	my $class       = shift;
+	my $plugin_init = shift;
+	my $plugin_dir  = $plugin_init->{plugin_dir};
+
+	# Check for a variable named "use_lib" and add each of the listed
+	# directories (relative to $plugin_dir) to the library list.
+	my @use_libs;
+	if (ref $plugin_init->{use_lib}) {
+		@use_libs = @{ $plugin_init->{use_lib} };
+	} else {
+		@use_libs = ( $plugin_init->{use_lib} );
+	}
+	push @INC, 
+		map { Contentment::Log->debug("%s: use lib %s", [$plugin_dir,$_]); $_ }
+		map { File::Spec->file_name_is_absolute($_) ? 
+				$_ : 
+				File::Spec->catdir($plugin_dir, $_) }
+		@use_libs;
+
+	# Check for a variable named "use" and load each Perl module listed or die.
+	my @uses;
+	if (ref $plugin_init->{use}) {
+		@uses = @{ $plugin_init->{use} };
+	} else {
+		@uses = ( $plugin_init->{use} );
+	}
+	for my $use (@uses) {
+		Contentment::Log->debug("%s: use %s", [$plugin_dir,$use]);
+		eval "use $use";
+		die $@ if $@;
+	}
+
+	# Check for a variable named "hooks" and setup each hook.
+	if ($plugin_init->{hooks}) {
+		while (my ($hook, $arg) = each %{ $plugin_init->{hooks} }) {
+			no strict 'refs';
+			if (ref $arg) {
+				Contentment::Log->debug("Registering hook %s for plugin %s with order %d", [$hook,$plugin_init->{name},$arg->{order}||0]);
+				Contentment::Hooks->register(
+					hook  => $hook, 
+					code  => \&{$arg->{sub}}, 
+					order => $arg->{order},
+					name  => $arg->{name} || $plugin_init->{name},
+				);
+			} else {
+				Contentment::Log->debug("Registering hook %s for plugin %s with default order", [$hook,$plugin_init->{name}]);
+				Contentment::Hooks->register(
+					hook => $hook, 
+					code => \&{$arg},
+					name => $plugin_init->{name},
+				);
+			}
+		}
+	}
+
+	# Create empty install hook so installation works properly
+	unless ($plugin_init->{hooks}{'Contentment::install'}) {
+		Contentment::Log->debug("Registering dummy hook Contentment::install for plugin %s", [$plugin_init->{name}]);
+		Contentment::Hooks->register(
+			hook => 'Contentment::install',
+			code => sub {},
+			name => $plugin_init->{name},
+		);
+	}
+
+	# Create empty upgrade hook so upgrades work properly
+	unless ($plugin_init->{hooks}{'Contentment::upgrade'}) {
+		Contentment::Log->debug("Registering dummy hook Contentment::upgrade for plugin %s", [$plugin_init->{name}]);
+		Contentment::Hooks->register(
+			hook => 'Contentment::upgrade',
+			code => sub {},
+			name => $plugin_init->{name},
+		);
+	}
+
+
+	# Create empty remove hook so removals work properly
+	unless ($plugin_init->{hooks}{'Contentment::remove'}) {
+		Contentment::Log->debug("Registering dummy hook Contentment::remove for plugin %s", [$plugin_init->{name}]);
+		Contentment::Hooks->register(
+			hook => 'Contentment::remove',
+			code => sub {},
+			name => $plugin_init->{name},
+		);
 	}
 }
+
+=item Contentment-E<gt>handle_cgi
+
+This passes control to the appropriate request and response objects.
+
+See L<Contentment::Request> and L<Contentment::Response> for more information.
+
+=cut
+
+sub handle_cgi {
+	Contentment::Request->begin_cgi;
+	Contentment::Response->handle_cgi;
+	Contentment::Request->end_cgi;
+}
+
+=item Contentment-E<gt>handle_fast_cgi
+
+This passes control to the appropriate request and response objects to handle FastCGI connections.
+
+See L<Contentment::Request> and L<Contentment::Response> for more information.
+
+=cut
+
+sub handle_fast_cgi {
+    # Loop through each FastCGI connection we get. Other than this loop,
+    # everything else is just like CGI!
+    while (Contentment::Request->begin_fast_cgi) {
+        # Handle the request using regular CGI logic
+        Contentment::Response->handle_cgi;
+
+        # Finish up using the regular CGI logic
+        Contentment::Request->end_fast_cgi;
+    }
+}
+
+=item Contentment-E<gt>handle_lwp
+
+Not yet implemented.
+
+=item Contentment-E<gt>handle_mod_perl
+
+Not yet implemented.
+
+=item Contentment-E<gt>end
+
+Performs final shutdown of the Contentment system. This calls the "L<Contentment::end>" hooks.
+
+=cut
+
+sub end {
+	Contentment::Hooks->call('Contentment::end');
+}
+
+=back
+
+=head2 HOOKS
+
+=over
+
+=item Contentment::install
+
+This is a named hook. The name is used to determine which plugin configuration to pass the install handler. It should match the "name" setting in F<init.yml> for the plugin.
+
+These handlers are passed a single argument, but no special input, and should not output anything. The special argument is the data loaded from F<init.yml>.
+
+=item Contentment::begin
+
+These handlers are passed no arguments, no special input, and should not output anything.
+
+=item Contentment::end
+
+These handlers are passed no arguments, no special input, and should not output anything.
 
 =back
 
 =head1 AUTHOR
 
-Andrew Sterling Hanenkamp E<lt>hanenkamp@users.sourceforge.netE<gt>
+Andrew Sterling Hanenkamp E<lt>hanenkamp@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

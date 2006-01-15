@@ -1,8 +1,57 @@
---- #YAML:1.0
+---
 name: Contentment
-version: 0.009_018
+version: 0.011029
 author:
-  - Andrew Sterling Hanenkamp E<lt>hanenkamp@users.sourceforge.netE<gt>
-abstract: A Mason/Perl-based content management system
+  - Andrew Sterling Hanenkamp E<lt>hanenkamp@cpan.orgE<gt>
+abstract: Contentment is a Perl-based web content management system
 license: perl
-generated_by: Module::Build version 0.261, without YAML.pm
+requires:
+  CGI: 0
+  Cache::Cache: 0
+  Class::Delegator: 0
+  Cwd: 0
+  Data::UUID: 0
+  DateTime: 0
+  Digest: 0
+  Exception::Class: 1.22
+  File::System: 1.16
+  IO::NestedCapture: 0
+  List::MoreUtils: 0
+  MIME::Types: 0
+  Oryx: 0.16
+  Pod::Simple: 0
+  Template: 2
+  Test::Deep: 0
+  Text::Balanced: 0
+  YAML: 0
+recommends:
+  Apache::Test: 1.25
+provides:
+  Contentment:
+    file: lib/Contentment.pm
+    version: 0.011029
+  Contentment::Exception:
+    file: lib/Contentment/Exception.pm
+    version: 0.011028
+  Contentment::Generator:
+    file: lib/Contentment/Generator.pm
+    version: 0.05
+  Contentment::Hooks:
+    file: lib/Contentment/Hooks.pm
+    version: 0.03
+  Contentment::Hooks::Iterator:
+    file: lib/Contentment/Hooks.pm
+    version: 0.03
+  Contentment::Log:
+    file: lib/Contentment/Log.pm
+    version: 0.03
+  Contentment::MIMETypes:
+    file: lib/Contentment/MIMETypes.pm
+    version: 0.01
+  Contentment::Request:
+    file: lib/Contentment/Request.pm
+    version: 0.05
+  Contentment::Response:
+    file: lib/Contentment/Response.pm
+    version: 0.011028
+generated_by: Module::Build version 0.2611
