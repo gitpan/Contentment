@@ -1,6 +1,6 @@
 ---
 name: Contentment
-version: 0.011029
+version: 0.011_030
 author:
   - Andrew Sterling Hanenkamp E<lt>hanenkamp@cpan.orgE<gt>
 abstract: Contentment is a Perl-based web content management system
@@ -20,6 +20,7 @@ requires:
   MIME::Types: 0
   Oryx: 0.16
   Pod::Simple: 0
+  Readonly: 0
   Template: 2
   Test::Deep: 0
   Text::Balanced: 0
@@ -29,7 +30,7 @@ recommends:
 provides:
   Contentment:
     file: lib/Contentment.pm
-    version: 0.011029
+    version: 0.011_030
   Contentment::Exception:
     file: lib/Contentment/Exception.pm
     version: 0.011028
