@@ -1,0 +1,28 @@
+{
+          'build_requires' => {},
+          'conflicts' => {},
+          'requires' => {
+                          'DateTime' => 0,
+                          'YAML' => 0,
+                          'Pod::Simple' => 0,
+                          'CGI' => 0,
+                          'Cache::Cache' => 0,
+                          'Digest' => 0,
+                          'Text::Balanced' => 0,
+                          'Test::Deep' => 0,
+                          'List::MoreUtils' => 0,
+                          'Class::Delegator' => 0,
+                          'Oryx' => '0.16',
+                          'IO::NestedCapture' => 0,
+                          'File::System' => '1.16',
+                          'MIME::Types' => 0,
+                          'Template' => 2,
+                          'Data::UUID' => 0,
+                          'Readonly' => 0,
+                          'Exception::Class' => '1.22',
+                          'Cwd' => 0
+                        },
+          'recommends' => {
+                            'Apache::Test' => '1.25'
+                          }
+        }
