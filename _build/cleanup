@@ -1,5 +1,0 @@
-{
-          't/TEST' => 1,
-          't/htdocs/cgi-bin/contentment.cgi' => 1,
-          'blib' => 1
-        }
